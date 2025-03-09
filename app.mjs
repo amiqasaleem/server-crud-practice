@@ -1,45 +1,77 @@
-import express from 'express';
-import { nanoid } from 'nanoid'
-const app = express()
-const port = 3000
+import express from "express";
+const app = express();
+import cors from "cors";
+import { nanoid } from "nanoid";
+
+app.use(cors());
+app.use(express.json());
+
 let users = [];
 
-app.use(express.json());
-//Ye sirf server check karne k liye:
+//CHECKING SERVERS
 
-app.get('/', (req, res) => {
-  res.send('Server chal raha hai bindaas')
-})
+app.get("/", (req, res) => {
+  res.send("server is running");
+});
 
-//Ye users fetch karne k liye:
 
+//FETCHING ALL USERS
 app.get("/users", (req, res) => {
   res.send(users);
 });
 
-//Ye user create karne k liye: id: nanoid()
+//CREATING USER.
 
-app.post('/user',(req, res) => {
-  let user = { ...req.body, id:nanoid()};   
+app.post("/user", (req, res) => {
+  let user = { ...req.body, id: nanoid() };
   users.push(user);
+
   res.send("user created successfully");
-  console.log(user);
-  
 });
-app.get('/user/:id', (req, res) => {
-  const {id} = req.params;
+
+//FETCHING AND FINDING ONE USER BASED ON THEIR ID
+
+app.get("/user/:id", (req, res) => {
+  const { id } = req.params;
   let foundUser = users.find((obj) => obj.id == id);
 
   res.send({
-    user:foundUser,
-    message:"User found Successfully"
-  })
-})
-
-
-
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+    user: foundUser,
+    message: "user found successfully",
+  });
 });
 
+//DELETING USER
+
+app.delete("/user/:id", (req, res) => {
+  const { id } = req.params;
+
+  let index = users.findIndex((user) => user.id == id);
+  users.splice(index, 1);
+
+  res.send({
+  deletedId: id,
+    message:"user deleted successfully"
+  });
+});
+
+
+// UPDATING USER
+
+app.put("/user/:id",(req,res)=>{
+    const { id } = req.params;
+
+  let index = users.findIndex((user) => user.id == id);
+  users.splice(index, 1,{...req.body,id:id});
+
+  res.send({
+  updatedUser: id,
+    message:"user updated successfully"
+  });
+
+
+})
+
+app.listen(3000, () => {
+  console.log("server is listening ");
+});
